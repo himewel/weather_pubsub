@@ -10,9 +10,8 @@ def get_data():
     start_date = "2020-01-01"
     end_date = "2021-06-02"
     station_id = "A826"
-    response = requests.get(
-        f"https://apitempo.inmet.gov.br/estacao/{start_date}/{end_date}/{station_id}"
-    )
+    base_url = "https://apitempo.inmet.gov.br/estacao"
+    response = requests.get(f"{base_url}/{start_date}/{end_date}/{station_id}")
 
     data = json.loads(response.text)
     send_list = []

@@ -11,7 +11,7 @@ from kafka.errors import KafkaError, TopicAlreadyExistsError
 
 class KafkaPublisher:
     def __init__(self, bootstrap_server=None, topic_name=None):
-        env_server = os.getenv("BOOTSTRAP_SERVER")
+        env_server = os.getenv("BROKER_SERVER")
         env_topic = os.getenv("TOPIC_NAME")
 
         self.bootstrap_server = bootstrap_server or env_server
@@ -36,7 +36,7 @@ class KafkaPublisher:
         logging.info("Creating kafka producer")
         producer = KafkaProducer(
             bootstrap_servers=self.bootstrap_server,
-            value_serializer=lambda m: json.dumps(m).encode('ascii'),
+            value_serializer=lambda m: json.dumps(m).encode("ascii"),
         )
 
         index = 0

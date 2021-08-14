@@ -18,7 +18,7 @@ class KafkaSubscriber:
         logging.info("Creating kafka consumer")
         consumer = KafkaConsumer(
             bootstrap_servers=self.bootstrap_server,
-            value_deserializer=lambda m: json.loads(m.decode('ascii')),
+            value_deserializer=lambda m: json.loads(m.decode("ascii")),
         )
         consumer.subscribe(topics=[self.topic_name])
 
