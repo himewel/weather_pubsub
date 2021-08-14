@@ -1,0 +1,59 @@
+networks:
+    default:
+        name: kafka_beam
+
+services:
+    zookeeper:
+        environment:
+            - ZOOKEEPER_CLIENT_PORT=2181
+            - ZOOKEEPER_TICK_TIME=2000
+        image: confluentinc/cp-zookeeper:5.4.0
+
+    broker:
+        depends_on:
+            - zookeeper
+        environment:
+            - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://broker:29092,PLAINTEXT_HOST://localhost:9092
+            - KAFKA_BROKER_ID=1
+            - KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS=0
+            - KAFKA_HEAP_OPTS=-Xms256m -Xmx256m
+            - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+            - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+            - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+        image: confluentinc/cp-kafka:5.4.0
+        ports:
+            - 9092:9092
+
+    publisher:
+        build: kafka
+        command: ./start.sh src/publisher.py broker 29092
+        depends_on:
+            - broker
+            - zookeeper
+        environment:
+            BROKER_SERVER: broker:29092
+            TOPIC_NAME: weather
+
+    ingester:
+        build: spark
+        command: ./start.sh src/ingest.py broker 29092
+        depends_on:
+            - broker
+            - zookeeper
+        environment:
+            BROKER_SERVER: broker:29092
+            TOPIC_NAME: weather
+
+    # subscriber:
+    #     build:
+    #         context: .
+    #         dockerfile: Dockerfile
+    #     command: src/subscriber.py
+    #     depends_on:
+    #         - kafka
+    #     environment:
+    #         BROKER_SERVER: kafka:19092
+    #         TOPIC_NAME: weather
+    #     restart: on-failure
+
+version: '3.8'
